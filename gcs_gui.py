@@ -165,5 +165,5 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
 
 if __name__ == '__main__':
     spacecraft = 'STA', 'SOHO'
-    date = dt.datetime(2020, 4, 15, 2, 30)
+    date = dt.datetime(2020, 4, 15, 5, 30)
     gcs_gui(date, spacecraft, runndiff=True)

@@ -115,13 +115,13 @@ def rotate_mesh(mesh, neang):
     rotated GCS mesh
 
     """
-    matrix = Rotation.from_euler('zxy', [neang[2], neang[1], neang[0]]).as_matrix()
+    matrix = Rotation.from_euler('zyx', [neang[2], neang[1], neang[0]]).as_matrix()
     return np.matmul(matrix, mesh.T).T
 
 
 def gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
     mesh, u, v = gcs_mesh(alpha, height, straight_vertices, front_vertices, circle_vertices, k)
-    mesh = rotate_mesh(mesh, [lat, lon, tilt])
+    mesh = rotate_mesh(mesh, [lon, lat, tilt])
     return mesh, u, v
 
 
