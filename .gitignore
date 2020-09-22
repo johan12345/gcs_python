@@ -1,3 +1,4 @@
 env/
 *.pyc
 .idea/
+gcs_params.json

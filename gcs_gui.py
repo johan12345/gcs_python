@@ -1,4 +1,6 @@
 import datetime as dt
+import json
+import os
 from typing import List
 
 import matplotlib
@@ -7,6 +9,7 @@ import numpy as np
 from astropy import units
 from matplotlib import colors
 from matplotlib.gridspec import GridSpec
+from matplotlib.widgets import Button
 from sunpy import log
 from sunpy.map import Map
 from sunpy.net import helioviewer
@@ -18,6 +21,7 @@ matplotlib.use('Qt5Agg')
 
 hv = helioviewer.HelioviewerClient()
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
+filename = 'gcs_params.json'
 
 # disable sunpy warnings
 log.setLevel('ERROR')
@@ -56,17 +60,41 @@ def load_image(spacecraft: str, date: dt.datetime, runndiff: bool):
         return f
 
 
+def save_params(params):
+    with open(filename, 'w') as file:
+        json.dump(params, file)
+
+
+def load_params():
+    if os.path.exists(filename):
+        with open(filename) as file:
+            return json.load(file)
+    else:
+        # start with default values
+        return {
+            'half_angle': 25,
+            'height': 10,
+            'kappa': 0.25,
+            'lat': 0,
+            'lon': 0,
+            'tilt': 0
+        }
+
+
 def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
     fig = plt.figure(figsize=(5 * (len(spacecraft) + 1), 5))
     spec = GridSpec(ncols=len(spacecraft) + 1, nrows=7, figure=fig)
 
-    s_half_angle = SliderAndTextbox(fig, spec[0, 0], 'Half angle', 0, 90, valinit=25)
-    s_height = SliderAndTextbox(fig, spec[1, 0], 'Height', 0, 24, valinit=8.79)
-    s_kappa = SliderAndTextbox(fig, spec[2, 0], '$\kappa$', 0, 1, valinit=0.26)
-    s_lat = SliderAndTextbox(fig, spec[3, 0], 'Latitude', -90, 90, valinit=-1)
-    s_lon = SliderAndTextbox(fig, spec[4, 0], 'Longitude', 0, 360, valinit=354)
-    s_tilt = SliderAndTextbox(fig, spec[5, 0], 'Tilt angle', -90, 90, valinit=5)
+    params = load_params()
+    s_half_angle = SliderAndTextbox(fig, spec[0, 0], 'Half angle', 0, 90, valinit=params['half_angle'])
+    s_height = SliderAndTextbox(fig, spec[1, 0], 'Height', 0, 24, valinit=params['height'])
+    s_kappa = SliderAndTextbox(fig, spec[2, 0], '$\kappa$', 0, 1, valinit=params['kappa'])
+    s_lat = SliderAndTextbox(fig, spec[3, 0], 'Latitude', -90, 90, valinit=params['lat'])
+    s_lon = SliderAndTextbox(fig, spec[4, 0], 'Longitude', 0, 360, valinit=params['lon'])
+    s_tilt = SliderAndTextbox(fig, spec[5, 0], 'Tilt angle', -90, 90, valinit=params['tilt'])
     sliders = s_half_angle, s_height, s_kappa, s_lat, s_lon, s_tilt
+
+    b_save = Button(fig.add_subplot(spec[6, 0]), 'Save')
 
     mesh_plots = []
     axes = []
@@ -111,9 +139,24 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
         fig.canvas.update()
         fig.canvas.flush_events()
 
+    def get_params_dict():
+        return {
+            'half_angle': s_half_angle.val,
+            'height': s_height.val,
+            'kappa': s_kappa.val,
+            'lat': s_lat.val,
+            'lon': s_lon.val,
+            'tilt': s_tilt.val
+        }
+
+    def save(*_):
+        save_params(get_params_dict())
+        plt.close(fig)
+
     plot_mesh()
     for slider in sliders:
         slider.on_changed(plot_mesh)
+    b_save.on_clicked(save)
 
     fig.canvas.draw()
     plt.tight_layout()
@@ -122,5 +165,5 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
 
 if __name__ == '__main__':
     spacecraft = 'STA', 'SOHO'
-    date = dt.datetime(2020, 4, 15, 6, 54)
+    date = dt.datetime(2020, 4, 15, 1, 0)
     gcs_gui(date, spacecraft, runndiff=True)
