@@ -4,19 +4,24 @@ from typing import List
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy import units
 from matplotlib import colors
 from matplotlib.gridspec import GridSpec
+from sunpy import log
 from sunpy.map import Map
 from sunpy.net import helioviewer
 
 from gcs import gcs_mesh_sunpy
-from utils.debounce import debounce
 from utils.widgets import SliderAndTextbox
 
 matplotlib.use('Qt5Agg')
 
 hv = helioviewer.HelioviewerClient()
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
+
+# disable sunpy warnings
+log.setLevel('ERROR')
+
 
 def running_difference(a, b):
     return Map(b.data * 1.0 - a.data * 1.0, b.meta)
@@ -75,7 +80,6 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
 
         image.plot(ax, cmap='Greys_r', norm=colors.Normalize(vmin=-30, vmax=30) if runndiff else None)
 
-    @debounce(0.2, fig)
     def plot_mesh(*_):
         half_angle = np.radians(s_half_angle.val)
         height = s_height.val
@@ -84,18 +88,28 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
         lon = np.radians(s_lon.val)
         tilt = np.radians(s_tilt.val)
 
-        # delete previous plots
-        for p in mesh_plots:
-            p.remove()
-            del p
-        mesh_plots.clear()
-
-        for image, ax in zip(images, axes):
+        for i, (image, ax) in enumerate(zip(images, axes)):
+            # create GCS mesh
             mesh = gcs_mesh_sunpy(date, half_angle, height, straight_vertices, front_vertices, circle_vertices, kappa,
                                   lat, lon, tilt)
 
-            p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)
-            mesh_plots.append(p[0])
+            if len(mesh_plots) <= i:
+                # new plot
+                p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)[0]
+                mesh_plots.append(p)
+            else:
+                # update plot
+                p = mesh_plots[i]
+
+                frame0 = mesh.frame.transform_to(image.coordinate_frame)
+                xdata = frame0.spherical.lon.to_value(units.deg)
+                ydata = frame0.spherical.lat.to_value(units.deg)
+                p.set_xdata(xdata)
+                p.set_ydata(ydata)
+                ax.draw_artist(p)
+
+        fig.canvas.update()
+        fig.canvas.flush_events()
 
     plot_mesh()
     for slider in sliders:
