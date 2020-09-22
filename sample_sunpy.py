@@ -33,8 +33,7 @@ map.plot(cmap='Greys_r')
 
 # transform GCS mesh into correct coordinates and plot
 mesh_coord = SkyCoord(*(mesh.T[[2, 1, 0], :] * sun.constants.radius), frame=frames.HeliographicStonyhurst, obstime=date, representation_type='cartesian')
-transformed_coord = mesh_coord.transform_to(map.coordinate_frame)
 
-ax.plot_coord(transformed_coord, '.', ms=3)
+ax.plot_coord(mesh_coord, '.', ms=3)
 
 plt.show()
