@@ -1,17 +1,19 @@
+import datetime as dt
 from typing import List
 
+import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import colors
 from matplotlib.gridspec import GridSpec
-import datetime as dt
-
-from matplotlib.widgets import Slider
 from sunpy.map import Map
 from sunpy.net import helioviewer
-import numpy as np
 
-from gcs import gcs_mesh, rotate_mesh, gcs_mesh_sunpy
+from gcs import gcs_mesh_sunpy
 from utils.debounce import debounce
+from utils.widgets import SliderAndTextbox
+
+matplotlib.use('Qt5Agg')
 
 hv = helioviewer.HelioviewerClient()
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
@@ -53,12 +55,12 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
     fig = plt.figure(figsize=(5 * (len(spacecraft) + 1), 5))
     spec = GridSpec(ncols=len(spacecraft) + 1, nrows=7, figure=fig)
 
-    s_half_angle = Slider(fig.add_subplot(spec[0, 0]), 'Half angle', 0, 90, valinit=25)
-    s_height = Slider(fig.add_subplot(spec[1, 0]), 'Height', 0, 24, valinit=8.79)
-    s_kappa = Slider(fig.add_subplot(spec[2, 0]), '$\kappa$', 0, 1, valinit=0.26)
-    s_lat = Slider(fig.add_subplot(spec[3, 0]), 'Latitude', -90, 90, valinit=-1)
-    s_lon = Slider(fig.add_subplot(spec[4, 0]), 'Longitude', 0, 360, valinit=354)
-    s_tilt = Slider(fig.add_subplot(spec[5, 0]), 'Tilt angle', -90, 90, valinit=5)
+    s_half_angle = SliderAndTextbox(fig, spec[0, 0], 'Half angle', 0, 90, valinit=25)
+    s_height = SliderAndTextbox(fig, spec[1, 0], 'Height', 0, 24, valinit=8.79)
+    s_kappa = SliderAndTextbox(fig, spec[2, 0], '$\kappa$', 0, 1, valinit=0.26)
+    s_lat = SliderAndTextbox(fig, spec[3, 0], 'Latitude', -90, 90, valinit=-1)
+    s_lon = SliderAndTextbox(fig, spec[4, 0], 'Longitude', 0, 360, valinit=354)
+    s_tilt = SliderAndTextbox(fig, spec[5, 0], 'Tilt angle', -90, 90, valinit=5)
     sliders = s_half_angle, s_height, s_kappa, s_lat, s_lon, s_tilt
 
     mesh_plots = []
@@ -92,7 +94,7 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
             mesh = gcs_mesh_sunpy(date, half_angle, height, straight_vertices, front_vertices, circle_vertices, kappa,
                                   lat, lon, tilt)
 
-            p = ax.plot_coord(mesh.transform_to(image.coordinate_frame), '.', ms=2, color='blue', scalex=False, scaley=False)
+            p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)
             mesh_plots.append(p[0])
 
     plot_mesh()

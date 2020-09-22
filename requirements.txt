@@ -2,3 +2,4 @@ matplotlib
 numpy
 scipy
 sunpy[net,jpeg2000]
+PyQt5
