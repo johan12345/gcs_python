@@ -1,7 +1,9 @@
 import numpy as np
+from astropy.coordinates import SkyCoord
 from numpy import pi, sin, cos, tan, arcsin, sqrt
 from numpy.linalg import norm
 from scipy.spatial.transform import Rotation
+from sunpy.coordinates import frames, sun
 
 
 def skeleton(alpha, distjunc, straight_vertices, front_vertices, k):
@@ -113,5 +115,18 @@ def rotate_mesh(mesh, neang):
     rotated GCS mesh
 
     """
-    matrix = Rotation.from_euler('zyx', [neang[2], neang[1], neang[0]]).as_matrix()
+    matrix = Rotation.from_euler('zxy', [neang[2], neang[1], neang[0]]).as_matrix()
     return np.matmul(matrix, mesh.T).T
+
+
+def gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
+    mesh, u, v = gcs_mesh(alpha, height, straight_vertices, front_vertices, circle_vertices, k)
+    mesh = rotate_mesh(mesh, [lat, lon, tilt])
+    return mesh, u, v
+
+
+def gcs_mesh_sunpy(date, alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
+    mesh, u, v = gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt)
+    mesh_coord = SkyCoord(*(mesh.T[[2, 1, 0], :] * sun.constants.radius), frame=frames.HeliographicStonyhurst,
+                          obstime=date, representation_type='cartesian')
+    return mesh_coord
