@@ -33,5 +33,5 @@ python3 gcs_gui.py "2020-04-15 06:00" STA SOHO
 
 Information on the available command line arguments for the GUI is given when you run the help option:
 ```shell
-python3 gcs_gui-py -h
+python3 gcs_gui.py -h
 ```
