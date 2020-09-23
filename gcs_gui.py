@@ -1,3 +1,4 @@
+import argparse
 import datetime as dt
 import json
 import os
@@ -31,21 +32,24 @@ def running_difference(a, b):
     return Map(b.data * 1.0 - a.data * 1.0, b.meta)
 
 
-def load_image(spacecraft: str, date: dt.datetime, runndiff: bool):
+def load_image(spacecraft: str, detector: str, date: dt.datetime, runndiff: bool):
     if spacecraft == 'STA':
         observatory = 'STEREO_A'
         instrument = 'SECCHI'
-        detector = 'COR2'
+        if detector not in ['COR1', 'COR2']:
+            raise ValueError(f'unknown detector {detector} for spacecraft {spacecraft}.')
     elif spacecraft == 'STB':
         observatory = 'STEREO_B'
         instrument = 'SECCHI'
-        detector = 'COR2'
+        if detector not in ['COR1', 'COR2']:
+            raise ValueError(f'unknown detector {detector} for spacecraft {spacecraft}.')
     elif spacecraft == 'SOHO':
         observatory = 'SOHO'
         instrument = 'LASCO'
-        detector = 'C3'
+        if detector not in ['C2', 'C3']:
+            raise ValueError(f'unknown detector {detector} for spacecraft {spacecraft}.')
     else:
-        raise ValueError(f'unrecognized spacecraft: {spacecraft}')
+        raise ValueError(f'unknown spacecraft: {spacecraft}')
     f = Map(hv.download_jp2(date,
                             observatory=observatory,
                             instrument=instrument,
@@ -81,7 +85,8 @@ def load_params():
         }
 
 
-def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
+def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False,
+            detector_stereo: str = 'COR2', detector_soho='C2'):
     fig = plt.figure(figsize=(5 * (len(spacecraft) + 1), 5))
     spec = GridSpec(ncols=len(spacecraft) + 1, nrows=7, figure=fig)
 
@@ -100,7 +105,8 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
     axes = []
     images = []
     for i, sc in enumerate(spacecraft):
-        image = load_image(sc, date, runndiff)
+        detector = detector_stereo if sc in ['STA', 'STB'] else detector_soho
+        image = load_image(sc, detector, date, runndiff)
         images.append(image)
 
         ax = fig.add_subplot(spec[:, i + 1], projection=image)
@@ -164,6 +170,19 @@ def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False):
 
 
 if __name__ == '__main__':
-    spacecraft = 'STA', 'SOHO'
-    date = dt.datetime(2020, 4, 15, 5, 30)
-    gcs_gui(date, spacecraft, runndiff=True)
+    parser = argparse.ArgumentParser(description='Run the GCS GUI')
+    parser.add_argument('date', type=lambda d: dt.datetime.strptime(d, '%Y-%m-%d %H:%M'),
+                        help='Date and time for the coronagraph images. Format: "yyyy-mm-dd HH:MM" (with quotes). '
+                             'The closest available image will be loaded for each spacecraft.')
+    parser.add_argument('spacecraft', type=str, nargs='+', choices=['STA', 'STB', 'SOHO'],
+                        help='List of spacecraft to use.')
+    parser.add_argument('-rd', '--running-difference', action='store_true',
+                        help='Whether to use running difference images')
+    parser.add_argument('-soho', type=str, default='C2', choices=['C2', 'C3'],
+                        help='Which coronagraph to use at SOHO/LASCO.')
+    parser.add_argument('-stereo', type=str, default='COR2', choices=['COR1', 'COR2'],
+                        help='Which coronagraph to use at STEREO.')
+
+    args = parser.parse_args()
+
+    gcs_gui(args.date, args.spacecraft, args.running_difference, detector_stereo=args.stereo, detector_soho=args.soho)
