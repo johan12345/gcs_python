@@ -74,7 +74,7 @@ def gcs_mesh(alpha, height, straight_vertices, front_vertices, circle_vertices, 
 
     Returns
     -------
-    GCS mesh (in lenght units, e.g. solar radii) in the following coordinate system (Heliographic stonyhurst):
+    GCS mesh (in length units, e.g. solar radii) in the following coordinate system (Heliographic Stonyhurst):
     - Z axis: Sun-Earth line projected onto Sun's equatorial plane
     - Y axis: Sun's north pole
     - Origin: center of the Sun
@@ -120,12 +120,52 @@ def rotate_mesh(mesh, neang):
 
 
 def gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
+    """
+    Calculate GCS model mesh and rotate it into the correct orientation.
+    Convenience function that combines gcs_mesh and rotate_mesh.
+
+    Parameters
+    ----------
+    alpha: width of CME (half angle, in radians)
+    height: CME height (in length units, e.g. solar radii)
+    straight_vertices: number of vertices along straight edges
+    front_vertices: number of vertices along front
+    circle_vertices: number of vertices along each circle
+    k: GCS ratio
+    lat: CME latitude in radians
+    lon: CME longitude in radians (0 = Earth-directed)
+    tilt: CME tilt angle in radians
+
+    Returns
+    -------
+    rotated GCS mesh
+    """
     mesh, u, v = gcs_mesh(alpha, height, straight_vertices, front_vertices, circle_vertices, k)
     mesh = rotate_mesh(mesh, [lon, lat, tilt])
     return mesh, u, v
 
 
 def gcs_mesh_sunpy(date, alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
+    """
+    Provides the GCS model mesh in SunPy SkyCoord format. This can be directly plotted using SunPy.
+
+    Parameters
+    ----------
+    date: date and time of observation (Python datetime instance)
+    alpha: width of CME (half angle, in radians)
+    height: CME height (in length units, e.g. solar radii)
+    straight_vertices: number of vertices along straight edges
+    front_vertices: number of vertices along front
+    circle_vertices: number of vertices along each circle
+    k: GCS ratio
+    lat: CME latitude in radians
+    lon: CME longitude in radians (0 = Earth-directed)
+    tilt: CME tilt angle in radians
+
+    Returns
+    -------
+    GCS mesh as SunPy SkyCoord
+    """
     mesh, u, v = gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt)
     mesh_coord = SkyCoord(*(mesh.T[[2, 1, 0], :] * sun.constants.radius), frame=frames.HeliographicStonyhurst,
                           obstime=date, representation_type='cartesian')
