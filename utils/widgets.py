@@ -1,43 +1,53 @@
-from matplotlib.figure import Figure
-from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib.widgets import Slider, TextBox
+from PyQt5 import QtCore, QtWidgets
 
 
-class SliderAndTextbox:
-    def __init__(self, fig: Figure, gs: SubplotSpec, label, min, max, valinit):
-        grid = gs.subgridspec(2, 1)
-        self._slider = Slider(fig.add_subplot(grid[0, 0]), label, min, max, valinit)
-        self._textbox = TextBox(fig.add_subplot(grid[1, 0]), '', valinit)
+class SliderAndTextbox(QtWidgets.QWidget):
+    """
+    Widget representing a slider with label and textbox
+    """
+    def __init__(self, label, min, max, init, resolution=0.01):
+        super(SliderAndTextbox, self).__init__()
+        self.resolution = resolution
 
-        slider_cid = None
-        textbox_cid = None
+        self.slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.slider.setMinimum(min / resolution)
+        self.slider.setMaximum(max / resolution)
+        self.slider.setValue(init / resolution)
+        self.slider.valueChanged.connect(self.handleSliderValueChange)
 
-        def update_textbox(*_):
-            nonlocal textbox_cid
+        self.numbox = QtWidgets.QDoubleSpinBox()
+        self.numbox.setMinimum(min)
+        self.numbox.setMaximum(max)
+        self.numbox.setValue(init)
+        self.numbox.valueChanged.connect(self.handleNumboxValueChange)
 
-            self._textbox.disconnect(textbox_cid)
-            self._textbox.set_val('{:.2f}'.format(self._slider.val))
-            textbox_cid = self._textbox.on_submit(update_slider)
+        self.label = QtWidgets.QLabel()
+        self.label.setText(label)
 
-        def update_slider(*_):
-            nonlocal slider_cid
+        vlayout = QtWidgets.QVBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
+        vlayout.addWidget(self.label)
+        layout.addWidget(self.slider)
+        layout.addWidget(self.numbox)
+        vlayout.addLayout(layout)
 
-            try:
-                value = float(self._textbox.text)
-
-                self._slider.disconnect(slider_cid)
-                self._slider.set_val(value)
-                slider_cid = self._slider.on_changed(update_textbox)
-            except ValueError:
-
-                pass
-
-        slider_cid = self._slider.on_changed(update_textbox)
-        textbox_cid = self._textbox.on_submit(update_slider)
+        self.valueChanged = self.numbox.valueChanged
 
     @property
     def val(self):
-        return self._slider.val
+        return self.numbox.value()
 
-    def on_changed(self, callback):
-        self._slider.on_changed(callback)
+    @QtCore.pyqtSlot(int)
+    def handleSliderValueChange(self, value):
+        self.numbox.setValue(value * self.resolution)
+
+
+    @QtCore.pyqtSlot(float)
+    def handleNumboxValueChange(self, value):
+        # Prevent values outside slider range
+        if value < self.slider.minimum():
+            self.numbox.setValue(self.slider.minimum())
+        elif value > self.slider.maximum():
+            self.numbox.setValue(self.slider.maximum())
+
+        self.slider.setValue(int(self.numbox.value() / self.resolution))
