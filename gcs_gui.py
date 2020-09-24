@@ -2,13 +2,18 @@ import argparse
 import datetime as dt
 import json
 import os
+import sys
 from typing import List
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from PyQt5 import QtWidgets
 from astropy import units
 from matplotlib import colors
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
+    NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.widgets import Button
 from sunpy import log
@@ -85,88 +90,112 @@ def load_params():
         }
 
 
-def gcs_gui(date: dt.datetime, spacecraft: List[str], runndiff: bool = False,
+class GCSGui(QtWidgets.QMainWindow):
+    def __init__(self, date: dt.datetime, spacecraft: List[str], runndiff: bool = False,
             detector_stereo: str = 'COR2', detector_soho='C2'):
-    fig = plt.figure(figsize=(5 * (len(spacecraft) + 1), 5))
-    spec = GridSpec(ncols=len(spacecraft) + 1, nrows=7, figure=fig)
+        super().__init__()
+        self._spacecraft = spacecraft
+        self._date = date
+        self._runndiff = runndiff
+        self._detector_stereo = detector_stereo
+        self._detector_soho = detector_soho
 
-    params = load_params()
-    s_half_angle = SliderAndTextbox(fig, spec[0, 0], 'Half angle', 0, 90, valinit=params['half_angle'])
-    s_height = SliderAndTextbox(fig, spec[1, 0], 'Height', 0, 24, valinit=params['height'])
-    s_kappa = SliderAndTextbox(fig, spec[2, 0], '$\kappa$', 0, 1, valinit=params['kappa'])
-    s_lat = SliderAndTextbox(fig, spec[3, 0], 'Latitude', -90, 90, valinit=params['lat'])
-    s_lon = SliderAndTextbox(fig, spec[4, 0], 'Longitude', 0, 360, valinit=params['lon'])
-    s_tilt = SliderAndTextbox(fig, spec[5, 0], 'Tilt angle', -90, 90, valinit=params['tilt'])
-    sliders = s_half_angle, s_height, s_kappa, s_lat, s_lon, s_tilt
+        self._main = QtWidgets.QWidget()
+        self.setCentralWidget(self._main)
+        layout = QtWidgets.QVBoxLayout(self._main)
 
-    b_save = Button(fig.add_subplot(spec[6, 0]), 'Save')
+        self._figure = Figure(figsize=(5 * (len(spacecraft) + 1), 5))
+        canvas = FigureCanvas(self._figure)
+        layout.addWidget(canvas)
+        self.addToolBar(NavigationToolbar(canvas, self))
 
-    mesh_plots = []
-    axes = []
-    images = []
-    for i, sc in enumerate(spacecraft):
-        detector = detector_stereo if sc in ['STA', 'STB'] else detector_soho
-        image = load_image(sc, detector, date, runndiff)
-        images.append(image)
+        self.make_plot()
+        self.show()
 
-        ax = fig.add_subplot(spec[:, i + 1], projection=image)
-        axes.append(ax)
+    def make_plot(self):
+        fig = self._figure
+        spacecraft = self._spacecraft
+        date = self._date
+        runndiff = self._runndiff
+        spec = GridSpec(ncols=len(spacecraft) + 1, nrows=7, figure=fig)
 
-        image.plot(ax, cmap='Greys_r', norm=colors.Normalize(vmin=-30, vmax=30) if runndiff else None)
+        params = load_params()
+        s_half_angle = SliderAndTextbox(fig, spec[0, 0], 'Half angle', 0, 90, valinit=params['half_angle'])
+        s_height = SliderAndTextbox(fig, spec[1, 0], 'Height', 0, 24, valinit=params['height'])
+        s_kappa = SliderAndTextbox(fig, spec[2, 0], '$\kappa$', 0, 1, valinit=params['kappa'])
+        s_lat = SliderAndTextbox(fig, spec[3, 0], 'Latitude', -90, 90, valinit=params['lat'])
+        s_lon = SliderAndTextbox(fig, spec[4, 0], 'Longitude', 0, 360, valinit=params['lon'])
+        s_tilt = SliderAndTextbox(fig, spec[5, 0], 'Tilt angle', -90, 90, valinit=params['tilt'])
+        sliders = s_half_angle, s_height, s_kappa, s_lat, s_lon, s_tilt
 
-    def plot_mesh(*_):
-        half_angle = np.radians(s_half_angle.val)
-        height = s_height.val
-        kappa = s_kappa.val
-        lat = np.radians(s_lat.val)
-        lon = np.radians(s_lon.val)
-        tilt = np.radians(s_tilt.val)
+        b_save = Button(fig.add_subplot(spec[6, 0]), 'Save')
 
-        for i, (image, ax) in enumerate(zip(images, axes)):
-            # create GCS mesh
-            mesh = gcs_mesh_sunpy(date, half_angle, height, straight_vertices, front_vertices, circle_vertices, kappa,
-                                  lat, lon, tilt)
+        mesh_plots = []
+        axes = []
+        images = []
+        for i, sc in enumerate(spacecraft):
+            detector = self._detector_stereo if sc in ['STA', 'STB'] else self._detector_soho
+            image = load_image(sc, detector, date, runndiff)
+            images.append(image)
 
-            if len(mesh_plots) <= i:
-                # new plot
-                p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)[0]
-                mesh_plots.append(p)
-            else:
-                # update plot
-                p = mesh_plots[i]
+            ax = fig.add_subplot(spec[:, i + 1], projection=image)
+            axes.append(ax)
 
-                frame0 = mesh.frame.transform_to(image.coordinate_frame)
-                xdata = frame0.spherical.lon.to_value(units.deg)
-                ydata = frame0.spherical.lat.to_value(units.deg)
-                p.set_xdata(xdata)
-                p.set_ydata(ydata)
-                ax.draw_artist(p)
+            image.plot(axes=ax, cmap='Greys_r', norm=colors.Normalize(vmin=-30, vmax=30) if runndiff else None)
 
-        fig.canvas.update()
-        fig.canvas.flush_events()
+        def plot_mesh(*_):
+            half_angle = np.radians(s_half_angle.val)
+            height = s_height.val
+            kappa = s_kappa.val
+            lat = np.radians(s_lat.val)
+            lon = np.radians(s_lon.val)
+            tilt = np.radians(s_tilt.val)
 
-    def get_params_dict():
-        return {
-            'half_angle': s_half_angle.val,
-            'height': s_height.val,
-            'kappa': s_kappa.val,
-            'lat': s_lat.val,
-            'lon': s_lon.val,
-            'tilt': s_tilt.val
-        }
+            for i, (image, ax) in enumerate(zip(images, axes)):
+                # create GCS mesh
+                mesh = gcs_mesh_sunpy(date, half_angle, height, straight_vertices, front_vertices, circle_vertices,
+                                      kappa,
+                                      lat, lon, tilt)
 
-    def save(*_):
-        save_params(get_params_dict())
-        plt.close(fig)
+                if len(mesh_plots) <= i:
+                    # new plot
+                    p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)[0]
+                    mesh_plots.append(p)
+                else:
+                    # update plot
+                    p = mesh_plots[i]
 
-    plot_mesh()
-    for slider in sliders:
-        slider.on_changed(plot_mesh)
-    b_save.on_clicked(save)
+                    frame0 = mesh.frame.transform_to(image.coordinate_frame)
+                    xdata = frame0.spherical.lon.to_value(units.deg)
+                    ydata = frame0.spherical.lat.to_value(units.deg)
+                    p.set_xdata(xdata)
+                    p.set_ydata(ydata)
+                    ax.draw_artist(p)
 
-    fig.canvas.draw()
-    plt.tight_layout()
-    plt.show()
+            fig.canvas.update()
+            fig.canvas.flush_events()
+
+        def get_params_dict():
+            return {
+                'half_angle': s_half_angle.val,
+                'height': s_height.val,
+                'kappa': s_kappa.val,
+                'lat': s_lat.val,
+                'lon': s_lon.val,
+                'tilt': s_tilt.val
+            }
+
+        def save(*_):
+            save_params(get_params_dict())
+            plt.close(fig)
+
+        plot_mesh()
+        for slider in sliders:
+            slider.on_changed(plot_mesh)
+        b_save.on_clicked(save)
+
+        fig.canvas.draw()
+        fig.tight_layout()
 
 
 if __name__ == '__main__':
@@ -185,4 +214,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    gcs_gui(args.date, args.spacecraft, args.running_difference, detector_stereo=args.stereo, detector_soho=args.soho)
+    qapp = QtWidgets.QApplication(sys.argv)
+    app = GCSGui(args.date, args.spacecraft, args.running_difference, detector_stereo=args.stereo, detector_soho=args.soho)
+    app.show()
+    qapp.exec_()
+
