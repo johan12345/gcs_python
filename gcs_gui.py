@@ -8,7 +8,7 @@ from typing import List
 import matplotlib
 import numpy as np
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QCheckBox
 from astropy import units
 from matplotlib import colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
@@ -128,6 +128,12 @@ class GCSGui(QtWidgets.QMainWindow):
             layout.addWidget(slider)
             slider.valueChanged.connect(self.plot_mesh)
 
+        # add checkbox to enable or disable plot
+        self._cb_enable = QCheckBox('show GCS mesh')
+        self._cb_enable.setChecked(True)
+        layout.addWidget(self._cb_enable)
+        self._cb_enable.stateChanged.connect(self.plot_mesh)
+
         # add labels for useful quantities
         self._l_radius = QLabel()
         layout.addWidget(self._l_radius)
@@ -176,6 +182,18 @@ class GCSGui(QtWidgets.QMainWindow):
         lon = np.radians(self._s_lon.val)
         tilt = np.radians(self._s_tilt.val)
 
+        # calculate and show quantities
+        ra = apex_radius(half_angle, height, kappa)
+        self._l_radius.setText('Apex cross-section radius: {:.2f} Rs'.format(ra))
+
+        # check if plot should be shown
+        if not self._cb_enable.checkState():
+            for plot in self._mesh_plots:
+                plot.remove()
+            self._mesh_plots = []
+            fig.canvas.draw()
+            return
+
         for i, (image, ax) in enumerate(zip(self._images, self._axes)):
             # create GCS mesh
             mesh = gcs_mesh_sunpy(self._date, half_angle, height, straight_vertices, front_vertices, circle_vertices,
@@ -198,10 +216,6 @@ class GCSGui(QtWidgets.QMainWindow):
                 ax.draw_artist(p)
 
         fig.canvas.draw()
-
-        # calculate and show quantities
-        ra = apex_radius(half_angle, height, kappa)
-        self._l_radius.setText('Apex cross-section radius: {:.2f} Rs'.format(ra))
 
     def get_params_dict(self):
         return {
