@@ -170,3 +170,23 @@ def gcs_mesh_sunpy(date, alpha, height, straight_vertices, front_vertices, circl
     mesh_coord = SkyCoord(*(mesh.T[[2, 1, 0], :] * sun.constants.radius), frame=frames.HeliographicStonyhurst,
                           obstime=date, representation_type='cartesian')
     return mesh_coord
+
+
+def apex_radius(alpha, height, k):
+    """
+    Calculates the cross-section radius of the flux rope at the apex, based on GCS parameters alpha, height and kappa.
+
+    Parameters
+    ----------
+    alpha: width of CME (half angle, in radians)
+    height: CME height (in length units, e.g. solar radii)
+    k: GCS ratio
+
+    Returns
+    -------
+    apex radius (in length units, e.g. solar radii)
+    """
+    h = height * (1 - k) * cos(alpha) / (1. + sin(alpha))
+    b = h / cos(alpha)
+    rho = h * tan(alpha)
+    return k * (b + rho) / (1 - k ** 2)

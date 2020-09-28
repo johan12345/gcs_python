@@ -8,6 +8,7 @@ from typing import List
 import matplotlib
 import numpy as np
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QLabel
 from astropy import units
 from matplotlib import colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
@@ -18,7 +19,7 @@ from sunpy import log
 from sunpy.map import Map
 from sunpy.net import helioviewer
 
-from gcs import gcs_mesh_sunpy
+from gcs import gcs_mesh_sunpy, apex_radius
 from utils.widgets import SliderAndTextbox
 
 matplotlib.use('Qt5Agg')
@@ -127,6 +128,10 @@ class GCSGui(QtWidgets.QMainWindow):
             layout.addWidget(slider)
             slider.valueChanged.connect(self.plot_mesh)
 
+        # add labels for useful quantities
+        self._l_radius = QLabel()
+        layout.addWidget(self._l_radius)
+
         b_save = QtWidgets.QPushButton('Save')
         b_save.clicked.connect(self.save)
         layout.addWidget(b_save)
@@ -193,6 +198,10 @@ class GCSGui(QtWidgets.QMainWindow):
                 ax.draw_artist(p)
 
         fig.canvas.draw()
+
+        # calculate and show quantities
+        ra = apex_radius(half_angle, height, kappa)
+        self._l_radius.setText('Apex cross-section radius: {:.2f} Rs'.format(ra))
 
     def get_params_dict(self):
         return {
