@@ -1,3 +1,5 @@
+import math
+
 from PyQt5 import QtCore, QtWidgets
 
 
@@ -5,6 +7,7 @@ class SliderAndTextbox(QtWidgets.QWidget):
     """
     Widget representing a slider with label and textbox
     """
+
     def __init__(self, label, min, max, init, resolution=0.01):
         super(SliderAndTextbox, self).__init__()
         self.resolution = resolution
@@ -19,6 +22,8 @@ class SliderAndTextbox(QtWidgets.QWidget):
         self.numbox.setMinimum(min)
         self.numbox.setMaximum(max)
         self.numbox.setValue(init)
+        self.numbox.setDecimals(-int(math.log10(resolution)))
+        self.numbox.setSingleStep(resolution)
         self.numbox.valueChanged.connect(self.handleNumboxValueChange)
 
         self.label = QtWidgets.QLabel()
@@ -50,4 +55,4 @@ class SliderAndTextbox(QtWidgets.QWidget):
         elif value > self.slider.maximum():
             self.numbox.setValue(self.slider.maximum())
 
-        self.slider.setValue(int(self.numbox.value() / self.resolution))
+        self.slider.setValue(int(round(self.numbox.value() / self.resolution)))
