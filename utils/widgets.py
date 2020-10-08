@@ -30,7 +30,7 @@ class SliderAndTextbox(QtWidgets.QWidget):
         self.label.setText(label)
 
         vlayout = QtWidgets.QVBoxLayout(self)
-        layout = QtWidgets.QHBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout()
         vlayout.addWidget(self.label)
         layout.addWidget(self.slider)
         layout.addWidget(self.numbox)
