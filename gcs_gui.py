@@ -164,6 +164,12 @@ class GCSGui(QtWidgets.QMainWindow):
             axes.append(ax)
 
             image.plot(axes=ax, cmap='Greys_r', norm=colors.Normalize(vmin=-30, vmax=30) if runndiff else None)
+
+            if i == len(spacecraft) - 1:
+                # for last plot: move labels to the right
+                ax.coords[1].set_ticks_position('r')
+                ax.coords[1].set_ticklabel_position('r')
+                ax.coords[1].set_axislabel_position('r')
         self._bg = fig.canvas.copy_from_bbox(fig.bbox)
         self._images = images
         self._axes = axes
