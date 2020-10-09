@@ -200,12 +200,10 @@ class GCSGui(QtWidgets.QMainWindow):
             fig.canvas.draw()
             return
 
+        # create GCS mesh
+        mesh = gcs_mesh_sunpy(self._date, half_angle, height, straight_vertices, front_vertices, circle_vertices,
+                              kappa, lat, lon, tilt)
         for i, (image, ax) in enumerate(zip(self._images, self._axes)):
-            # create GCS mesh
-            mesh = gcs_mesh_sunpy(self._date, half_angle, height, straight_vertices, front_vertices, circle_vertices,
-                                  kappa,
-                                  lat, lon, tilt)
-
             if len(self._mesh_plots) <= i:
                 # new plot
                 p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)[0]
