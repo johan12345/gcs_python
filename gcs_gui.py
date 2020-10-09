@@ -16,6 +16,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from sunpy import log
+from sunpy.coordinates import get_horizons_coord
 from sunpy.io import read_file
 from sunpy.map import Map
 from sunpy.net import helioviewer
@@ -70,6 +71,14 @@ def download_helioviewer(date, observatory, instrument, detector):
     data, header = read_file(file)[0]
     header['CROTA2'] = 0  # Helioviewer images are already rotated, so reset the CROTA2 header to 0
     f = Map(data, header)
+
+    if observatory == 'SOHO':
+       # add observer location information:
+       soho = get_horizons_coord('SOHO', f.date)
+       f.meta['HGLN_OBS'] = soho.lon.to('deg').value
+       f.meta['HGLT_OBS'] = soho.lat.to('deg').value
+       f.meta['DSUN_OBS'] = soho.radius.to('m').value
+
     return f
 
 
