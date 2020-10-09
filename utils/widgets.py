@@ -24,6 +24,7 @@ class SliderAndTextbox(QtWidgets.QWidget):
         self.numbox.setValue(init)
         self.numbox.setDecimals(-int(math.log10(resolution)))
         self.numbox.setSingleStep(resolution)
+        self.numbox.setKeyboardTracking(False)  # when editing text, only update after return key pressed
         self.numbox.valueChanged.connect(self.handleNumboxValueChange)
 
         self.label = QtWidgets.QLabel()
