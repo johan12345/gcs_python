@@ -15,14 +15,22 @@ Note
 
 This code is still in a quite early stage and was not yet systematically tested and compared to the IDL/SolarSoft version. Please be careful when using it and compare to IDL when in doubt. If you find a bug, please notify me with a GitHub [issue](https://github.com/johan12345/gcs_python/issues/new) or [Pull Request](https://github.com/johan12345/gcs_python/compare).
 
-How to run
-----------
+How to run the GUI
+------------------
+
+Python 3.7 or later is required.
+
+It is recommended to use a [virtual environment](https://docs.python.org/3/tutorial/venv.html) so that the
+Python packages you install as dependencies of GCS don't interfere with your globally installed packages.
+On some Linux distributions, the additional `python3-venv` package needs to be installed for this to work.
 
 ```shell
-# create virtual environment
 python3 -m venv env
 . env/bin/activate
+```
 
+Then, you can continue to install the dependencies and run the GCS GUI:
+```shell
 # install requirements
 python3 -m pip install --upgrade pip setuptools
 pip3 install -r requirements.txt
