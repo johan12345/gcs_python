@@ -166,7 +166,9 @@ def gcs_mesh_sunpy(date, alpha, height, straight_vertices, front_vertices, circl
     GCS mesh as SunPy SkyCoord
     """
     mesh, u, v = gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt)
-    mesh_coord = SkyCoord(*(mesh.T[[2, 1, 0], :] * sun.constants.radius), frame=frames.HeliographicStonyhurst,
+    m = mesh.T[[2, 1, 0], :] * sun.constants.radius
+    m[1, :] *= -1
+    mesh_coord = SkyCoord(*(m), frame=frames.HeliographicStonyhurst,
                           obstime=date, representation_type='cartesian')
     return mesh_coord
 
