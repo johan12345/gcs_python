@@ -16,6 +16,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from sunpy import log
+from sunpy.io import read_file
 from sunpy.map import Map
 from sunpy.net import helioviewer
 
@@ -54,18 +55,22 @@ def load_image(spacecraft: str, detector: str, date: dt.datetime, runndiff: bool
             raise ValueError(f'unknown detector {detector} for spacecraft {spacecraft}.')
     else:
         raise ValueError(f'unknown spacecraft: {spacecraft}')
-    f = Map(hv.download_jp2(date,
-                            observatory=observatory,
-                            instrument=instrument,
-                            detector=detector))
+
+    f = download_helioviewer(date, observatory, instrument, detector)
+
     if runndiff:
-        f2 = Map(hv.download_jp2(date - dt.timedelta(hours=1),
-                                 observatory=observatory,
-                                 instrument=instrument,
-                                 detector=detector))
+        f2 = download_helioviewer(date - dt.timedelta(hours=1), observatory, instrument, detector)
         return running_difference(f2, f)
     else:
         return f
+
+
+def download_helioviewer(date, observatory, instrument, detector):
+    file = hv.download_jp2(date, observatory=observatory, instrument=instrument, detector=detector)
+    data, header = read_file(file)[0]
+    header['CROTA2'] = 0  # Helioviewer images are already rotated, so reset the CROTA2 header to 0
+    f = Map(data, header)
+    return f
 
 
 def save_params(params):
