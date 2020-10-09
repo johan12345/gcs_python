@@ -25,7 +25,7 @@ from utils.widgets import SliderAndTextbox
 
 matplotlib.use('Qt5Agg')
 
-hv = helioviewer.HelioviewerClient()
+hv = helioviewer.HelioviewerClient('https://helioviewer-api.ias.u-psud.fr')
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
 filename = 'gcs_params.json'
 
