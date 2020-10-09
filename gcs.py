@@ -115,8 +115,7 @@ def rotate_mesh(mesh, neang):
     rotated GCS mesh
 
     """
-    matrix = Rotation.from_euler('zyx', [neang[2], neang[1], neang[0]]).as_matrix()
-    return np.matmul(matrix, mesh.T).T
+    return Rotation.from_euler('zyx', [neang[2], neang[1], neang[0]]).apply(mesh)
 
 
 def gcs_mesh_rotated(alpha, height, straight_vertices, front_vertices, circle_vertices, k, lat, lon, tilt):
