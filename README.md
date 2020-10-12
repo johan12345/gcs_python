@@ -13,7 +13,9 @@ in `gcs_gui.py` uses [SunPy](https://sunpy.org/) to plot the model on top of cor
 Note
 ----
 
-This code is still in a quite early stage and was not yet systematically tested and compared to the IDL/SolarSoft version. Please be careful when using it and compare to IDL when in doubt. If you find a bug, please notify me with a GitHub [issue](https://github.com/johan12345/gcs_python/issues/new) or [Pull Request](https://github.com/johan12345/gcs_python/compare).
+This code is still in a quite early stage. It has been compared with the original IDL/SolarSoft version to verify the results, but only for a few case studies.
+Please be careful when using it and compare to IDL when in doubt. If you find a bug or have suggestions for improvement, please notify me with a
+GitHub [issue](https://github.com/johan12345/gcs_python/issues/new) or [Pull Request](https://github.com/johan12345/gcs_python/compare).
 
 How to run the GUI
 ------------------
