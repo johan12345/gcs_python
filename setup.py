@@ -17,7 +17,7 @@ setup(
     author_email='forstner@physik.uni-kiel.de',
     entry_points={
         'console_scripts': [
-            'gcs_gui=gcs.gcs_gui:main',
+            'gcs_gui=gcs.gui:main',
         ]
     },
     packages=['gcs', 'gcs.utils'],
