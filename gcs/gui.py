@@ -21,8 +21,8 @@ from sunpy.io import read_file
 from sunpy.map import Map
 from sunpy.net import helioviewer
 
-from gcs import gcs_mesh_sunpy, apex_radius
-from utils.widgets import SliderAndTextbox
+from gcs.geometry import gcs_mesh_sunpy, apex_radius
+from gcs.utils.widgets import SliderAndTextbox
 
 matplotlib.use('Qt5Agg')
 

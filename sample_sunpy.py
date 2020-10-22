@@ -1,9 +1,7 @@
-from astropy.coordinates import SkyCoord
-from sunpy.coordinates import sun, frames
 from sunpy.map import Map
 from sunpy.net import helioviewer
 
-from gcs import gcs_mesh, rotate_mesh, gcs_mesh_sunpy
+from gcs.geometry import gcs_mesh_sunpy
 import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt

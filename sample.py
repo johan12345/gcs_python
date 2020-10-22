@@ -1,4 +1,4 @@
-from gcs import gcs_mesh
+from gcs.geometry import gcs_mesh
 import matplotlib.tri as mtri
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D

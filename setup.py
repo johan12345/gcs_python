@@ -21,7 +21,6 @@ setup(
         ]
     },
     packages=['gcs', 'gcs.utils'],
-    package_dir={'gcs': ''},
     install_requires=['astroquery', 'matplotlib', 'numpy', 'scipy>=1.2.0', 'sunpy[net,jpeg2000]', 'PyQt5'],
     classifiers=[
         "Programming Language :: Python :: 3",
