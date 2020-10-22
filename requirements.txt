@@ -1,6 +1,6 @@
 astroquery
 matplotlib
 numpy
-scipy
+scipy>=1.2.0
 sunpy[net,jpeg2000]
 PyQt5

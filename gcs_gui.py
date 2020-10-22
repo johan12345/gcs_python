@@ -250,8 +250,8 @@ class GCSGui(QtWidgets.QMainWindow):
         self.close()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run the GCS GUI')
+def main():
+    parser = argparse.ArgumentParser(description='Run the GCS GUI', prog='gcs_gui')
     parser.add_argument('date', type=lambda d: dt.datetime.strptime(d, '%Y-%m-%d %H:%M'),
                         help='Date and time for the coronagraph images. Format: "yyyy-mm-dd HH:MM" (with quotes). '
                              'The closest available image will be loaded for each spacecraft.')
@@ -263,11 +263,14 @@ if __name__ == '__main__':
                         help='Which coronagraph to use at SOHO/LASCO.')
     parser.add_argument('-stereo', type=str, default='COR2', choices=['COR1', 'COR2'],
                         help='Which coronagraph to use at STEREO.')
-
     args = parser.parse_args()
-
     qapp = QtWidgets.QApplication(sys.argv)
-    app = GCSGui(args.date, args.spacecraft, args.running_difference, detector_stereo=args.stereo, detector_soho=args.soho)
+    app = GCSGui(args.date, args.spacecraft, args.running_difference, detector_stereo=args.stereo,
+                 detector_soho=args.soho)
     app.show()
     qapp.exec_()
+
+
+if __name__ == '__main__':
+    main()
 
