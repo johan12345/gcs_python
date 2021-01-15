@@ -8,8 +8,9 @@ from typing import List
 import matplotlib
 import numpy as np
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QLabel, QCheckBox
+from PyQt5.QtWidgets import QLabel, QComboBox
 from astropy import units
+from astropy.coordinates import concatenate
 from matplotlib import colors
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, \
     NavigationToolbar2QT as NavigationToolbar
@@ -29,6 +30,7 @@ matplotlib.use('Qt5Agg')
 hv = helioviewer.HelioviewerClient()
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
 filename = 'gcs_params.json'
+draw_modes = ['off', 'point cloud', 'grid']
 
 # disable sunpy warnings
 log.setLevel('ERROR')
@@ -121,6 +123,7 @@ class GCSGui(QtWidgets.QMainWindow):
         canvas = FigureCanvas(self._figure)
         self._mainlayout.addWidget(canvas, stretch=5)
         self.addToolBar(NavigationToolbar(canvas, self))
+        self._current_draw_mode = None
 
         self.create_widgets()
 
@@ -143,10 +146,15 @@ class GCSGui(QtWidgets.QMainWindow):
             slider.valueChanged.connect(self.plot_mesh)
 
         # add checkbox to enable or disable plot
-        self._cb_enable = QCheckBox('show GCS mesh')
-        self._cb_enable.setChecked(True)
-        layout.addWidget(self._cb_enable)
-        self._cb_enable.stateChanged.connect(self.plot_mesh)
+        cb_mode_label = QLabel()
+        cb_mode_label.setText('Display mode')
+        layout.addWidget(cb_mode_label)
+        self._cb_mode = QComboBox()
+        for mode in draw_modes:
+            self._cb_mode.addItem(mode)
+        self._cb_mode.setCurrentIndex(2)
+        layout.addWidget(self._cb_mode)
+        self._cb_mode.currentIndexChanged.connect(self.plot_mesh)
 
         # add labels for useful quantities
         self._l_radius = QLabel()
@@ -207,20 +215,35 @@ class GCSGui(QtWidgets.QMainWindow):
         self._l_radius.setText('Apex cross-section radius: {:.2f} Rs'.format(ra))
 
         # check if plot should be shown
-        if not self._cb_enable.checkState():
+        draw_mode = draw_modes[self._cb_mode.currentIndex()]
+        if draw_mode != self._current_draw_mode:
             for plot in self._mesh_plots:
                 plot.remove()
             self._mesh_plots = []
             fig.canvas.draw()
-            return
+            self._current_draw_mode = draw_mode
+            if draw_mode == 'off':
+                return
 
         # create GCS mesh
         mesh = gcs_mesh_sunpy(self._date, half_angle, height, straight_vertices, front_vertices, circle_vertices,
                               kappa, lat, lon, tilt)
+        if draw_mode == 'grid':
+            mesh2 = mesh.reshape((front_vertices + straight_vertices) * 2 - 3, circle_vertices).T.flatten()
+            mesh = concatenate([mesh, mesh2])
+
         for i, (image, ax) in enumerate(zip(self._images, self._axes)):
             if len(self._mesh_plots) <= i:
                 # new plot
-                p = ax.plot_coord(mesh, '.', ms=2, color='blue', scalex=False, scaley=False)[0]
+                style = {
+                    'grid': '-',
+                    'point cloud': '.'
+                }[draw_mode]
+                params = {
+                    'grid': dict(lw=0.5),
+                    'point cloud': dict(ms=2)
+                }[draw_mode]
+                p = ax.plot_coord(mesh, style, color='blue', scalex=False, scaley=False, **params)[0]
                 self._mesh_plots.append(p)
             else:
                 # update plot
