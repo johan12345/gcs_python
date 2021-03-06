@@ -70,9 +70,7 @@ def load_image(spacecraft: str, detector: str, date: dt.datetime, runndiff: bool
 
 def download_helioviewer(date, observatory, instrument, detector):
     file = hv.download_jp2(date, observatory=observatory, instrument=instrument, detector=detector)
-    data, header = read_file(file)[0]
-    header['CROTA2'] = 0  # Helioviewer images are already rotated, so reset the CROTA2 header to 0
-    f = Map(data, header)
+    f = Map(file)
 
     if observatory == 'SOHO':
        # add observer location information:
