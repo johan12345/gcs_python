@@ -2,12 +2,17 @@ GCS in Python
 =============
 [![DOI](https://zenodo.org/badge/297350666.svg)](https://zenodo.org/badge/latestdoi/297350666)
 
-Python 3 implementation of the Graduated Cylindrical Shell model ([Thernisien, 2011](https://dx.doi.org/10.1088%2F0067-0049%2F194%2F2%2F33)).
-Based on the existing IDL implementation in SolarSoft (`cmecloud.pro`, `shellskeleton.pro`).
+Python 3 implementation of the Graduated Cylindrical Shell model (GCS, [Thernisien, 2011](https://dx.doi.org/10.1088%2F0067-0049%2F194%2F2%2F33)).
+Based on the existing IDL implementation in [SolarSoft](https://www.lmsal.com/solarsoft/)
+(`cmecloud.pro`, `shellskeleton.pro`).
 
 The code in `gcs/geometry.py` provides the basic implementation of the GCS geometry, while the Qt-based GUI in
 `gcs/gui.py` uses [SunPy](https://sunpy.org/) and Matplotlib to plot the model on top of coronagraph images provided by
 [Helioviewer.org](https://www.helioviewer.org/).
+
+A more detailed description of the GCS model, this Python implementation and its validation is given in
+[this excerpt](/doc/gcs_implementation_forstner_phd_2021.pdf?raw=true) from
+[my PhD thesis](https://nbn-resolving.org/urn:nbn:de:gbv:8:3-2021-00166-5).
 
 ![Screenshot](/img/screenshot.png?raw=true)
 
