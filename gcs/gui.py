@@ -18,16 +18,16 @@ from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from sunpy import log
 from sunpy.coordinates import get_horizons_coord
-from sunpy.io import read_file
 from sunpy.map import Map
-from sunpy.net import helioviewer
 
 from gcs.geometry import gcs_mesh_sunpy, apex_radius
+from gcs.utils.helioviewer import get_helioviewer_client
 from gcs.utils.widgets import SliderAndTextbox
 
 matplotlib.use('Qt5Agg')
 
-hv = helioviewer.HelioviewerClient()
+hv = get_helioviewer_client()
+
 straight_vertices, front_vertices, circle_vertices = 10, 10, 20
 filename = 'gcs_params.json'
 draw_modes = ['off', 'point cloud', 'grid']
