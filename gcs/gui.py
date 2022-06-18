@@ -131,11 +131,11 @@ class GCSGui(QtWidgets.QMainWindow):
     def create_widgets(self):
         params = load_params()
         self._s_half_angle = SliderAndTextbox('Half angle, \u03B1 [°]', 0, 90, params['half_angle'])
-        self._s_height = SliderAndTextbox('Height [Rs]', 0, 24, params['height'])
-        self._s_kappa = SliderAndTextbox('Aspect Ratio κ', 0, 1, params['kappa'])
-        self._s_lat = SliderAndTextbox('Latitude [°]', -90, 90, params['lat'])
-        self._s_lon = SliderAndTextbox('Longitude [°]', 0, 360, params['lon'])
-        self._s_tilt = SliderAndTextbox('Tilt angle [°]', -90, 90, params['tilt'])
+        self._s_height = SliderAndTextbox('Apex Height, \u111D4D0 [Rs]', 0, 24, params['height'])
+        self._s_kappa = SliderAndTextbox('Aspect Ratio \u03BA κ', 0, 1, params['kappa'])
+        self._s_lat = SliderAndTextbox('Heliographic Latitude ,\u03B8 [°]', -90, 90, params['lat'])
+        self._s_lon = SliderAndTextbox('Stonyhurst Longitude, \u03C6 [°]', 0, 360, params['lon'])
+        self._s_tilt = SliderAndTextbox('Tilt angle, \u03B3 [°]', -90, 90, params['tilt'])
         sliders = self._s_half_angle, self._s_height, self._s_kappa, self._s_lat, self._s_lon, self._s_tilt
 
         layout = QtWidgets.QVBoxLayout()
