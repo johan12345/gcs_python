@@ -132,7 +132,7 @@ class GCSGui(QtWidgets.QMainWindow):
         params = load_params()
         self._s_half_angle = SliderAndTextbox('Half angle [°]', 0, 90, params['half_angle'])
         self._s_height = SliderAndTextbox('Height [Rs]', 0, 24, params['height'])
-        self._s_kappa = SliderAndTextbox('κ', 0, 1, params['kappa'])
+        self._s_kappa = SliderAndTextbox('Aspect Ratio κ', 0, 1, params['kappa'])
         self._s_lat = SliderAndTextbox('Latitude [°]', -90, 90, params['lat'])
         self._s_lon = SliderAndTextbox('Longitude [°]', 0, 360, params['lon'])
         self._s_tilt = SliderAndTextbox('Tilt angle [°]', -90, 90, params['tilt'])
