@@ -131,9 +131,9 @@ class GCSGui(QtWidgets.QMainWindow):
     def create_widgets(self):
         params = load_params()
         self._s_half_angle = SliderAndTextbox('Half angle, \u03B1 [°]', 0, 90, params['half_angle'])
-        self._s_height = SliderAndTextbox('Apex Height, \u111D4D0 [Rs]', 0, 24, params['height'])
-        self._s_kappa = SliderAndTextbox('Aspect Ratio \u03BA κ', 0, 1, params['kappa'])
-        self._s_lat = SliderAndTextbox('Heliographic Latitude ,\u03B8 [°]', -90, 90, params['lat'])
+        self._s_height = SliderAndTextbox('Apex Height, R\u2090\u209A\u2091\u2093 [Rs]', 0, 24, params['height'])
+        self._s_kappa = SliderAndTextbox('Aspect Ratio, \u03BA', 0, 1, params['kappa'])
+        self._s_lat = SliderAndTextbox('Heliographic Latitude,\u03B8 [°]', -90, 90, params['lat'])
         self._s_lon = SliderAndTextbox('Stonyhurst Longitude, \u03C6 [°]', 0, 360, params['lon'])
         self._s_tilt = SliderAndTextbox('Tilt angle, \u03B3 [°]', -90, 90, params['tilt'])
         sliders = self._s_half_angle, self._s_height, self._s_kappa, self._s_lat, self._s_lon, self._s_tilt
