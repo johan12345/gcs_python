@@ -173,7 +173,7 @@ def gcs_mesh_sunpy(date, alpha, height, straight_vertices, front_vertices, circl
     return mesh_coord
 
 
-def apex_radius(alpha, height, k):
+def apex_radius( height, k):
     """
     Calculates the cross-section radius of the flux rope at the apex, based on GCS parameters alpha, height and kappa.
 
@@ -187,7 +187,7 @@ def apex_radius(alpha, height, k):
     -------
     apex radius (in length units, e.g. solar radii)
     """
-    h = height * (1 - k) * cos(alpha) / (1. + sin(alpha))
-    b = h / cos(alpha)
-    rho = h * tan(alpha)
-    return k * (b + rho) / (1 - k ** 2)
+    # h = height * (1 - k) * cos(alpha) / (1. + sin(alpha))
+    # b = h / cos(alpha)
+    # rho = h * tan(alpha)
+    return  k * height / (1+k)    #k * (b + rho) / (1 - k ** 2)
