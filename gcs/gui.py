@@ -209,7 +209,7 @@ class GCSGui(QtWidgets.QMainWindow):
         tilt = np.radians(self._s_tilt.val)
 
         # calculate and show quantities
-        ra = apex_radius(half_angle, height, kappa)
+        ra = apex_radius(height, kappa)
         self._l_radius.setText('Apex cross-section radius: {:.2f} Rs'.format(ra))
 
         # check if plot should be shown
