@@ -13,9 +13,9 @@ class SliderAndTextbox(QtWidgets.QWidget):
         self.resolution = resolution
 
         self.slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.slider.setMinimum(min / resolution)
-        self.slider.setMaximum(max / resolution)
-        self.slider.setValue(init / resolution)
+        self.slider.setMinimum(int(min / resolution))
+        self.slider.setMaximum(int(max / resolution))
+        self.slider.setValue(int(init / resolution))
         self.slider.valueChanged.connect(self.handleSliderValueChange)
 
         self.numbox = QtWidgets.QDoubleSpinBox()
