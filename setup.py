@@ -21,7 +21,7 @@ setup(
         ]
     },
     packages=['gcs', 'gcs.utils'],
-    install_requires=['astroquery', 'matplotlib', 'numpy', 'scipy>=1.2.0', 'sunpy[net,jpeg2000]>=2.1.0', 'PyQt5'],
+    install_requires=['astroquery', 'matplotlib', 'numpy', 'scipy>=1.2.0', 'sunpy[net,jpeg2000]>=2.1.0,<5.2.0', 'PyQt5'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
