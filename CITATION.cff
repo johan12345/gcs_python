@@ -3,7 +3,7 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 title: 'GCS in Python'
-doi: 10.5281/zenodo.5084818
+doi: 10.5281/zenodo.12668802
 authors:
 - given-names: Johan L.
   family-names: Forstner
@@ -11,7 +11,7 @@ authors:
   affiliation: Institute of Experimental and Applied Physics, University of Kiel,
     Kiel, Germany
   orcid: https://orcid.org/0000-0002-1390-4776
-version: 0.2.2
-date-released: 2021-07-09
+version: 0.2.3
+date-released: 2024-07-06
 repository-code: https://github.com/johan12345/gcs_python
 license: other-open
