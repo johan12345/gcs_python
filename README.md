@@ -45,6 +45,12 @@ Information on the available command line arguments for the GUI is given when yo
 gcs_gui -h
 ```
 
+### Common issues
+- `command not found: gcs_gui`\
+  This sounds like the directory where `pip` installs executables (on Linux this is typically `~/.local/bin`) is not on your `PATH`. `pip` probably printed a warning about this when you were installing the package.
+- `RuntimeError: You must have a version of OpenJPEG at least as high as 2.3.0 before you can read JPEG2000 images with glymur.`\
+   Loading Helioviewer images with SunPy requires the OpenJPEG library to be available on your `PATH`. You can install it through your system package manager (e.g., `apt install libopenjp2-7-dev`), through [`conda`](https://anaconda.org/conda-forge/openjpeg/) or [manually](https://github.com/uclouvain/openjpeg/releases), as you prefer.
+
 How to use the GCS geometry in your own plotting code
 -----------------------------------------------------
 Simply install GCS (as seen above) and use
