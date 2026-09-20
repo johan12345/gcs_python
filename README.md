@@ -16,14 +16,13 @@ A more detailed description of the GCS model, this Python implementation and its
 
 ![Screenshot](/img/screenshot.png?raw=true)
 
+**For an interactive Streamlit web app based on the GCS model, take a lookt at [ennomuller/HelioTrace](https://github.com/ennomuller/HelioTrace)!**
+
 Note
 ----
 
-This code is still in a quite early stage. It has been compared with the original IDL/SolarSoft version to verify the results, but only for a few case studies.
-Please be careful when using it and compare to IDL when in doubt.
-
 If you find a bug, run into technical problems during the installation, or have suggestions for improvement, please create a
-GitHub [issue](https://github.com/johan12345/gcs_python/issues/new). As I have since left the Heliophysics field and am no longer actively using the tool myself, I can't promise timely responses. But it is still preferrable compared to writing me an email in private, as other users can also help you.
+GitHub [issue](https://github.com/johan12345/gcs_python/issues/new). As I have since left the Heliophysics field and am no longer actively using the tool myself, I can't promise timely responses. But it is still preferable compared to writing me an email in private, as other users can also help you.
 
 If you have fixed a bug or implemented improvements, please feel free to open a [Pull Request](https://github.com/johan12345/gcs_python/compare)!
 
